@@ -28,18 +28,18 @@
 
 (def parse (fn parser [env eql] (p.a.eql/process (merge default-env env) (omit-error-attribute eql))))
 
-(defn make-pathom-env 
+(defn make-pathom-env
   "Create an initial pathom `env`, lifting an query params to the top level
    for easy access by any nested resolver"
   [ring-request edn-transaction]
   (let [children (-> edn-transaction eql/query->ast :children)
         query-params (reduce
-                       (fn collect-params [acc {:keys [type params]}]
-                         (cond-> acc
-                           (and (not= :call type) (seq params))  ; skip mutations
-                           (merge params)))
-                       {}
-                       children)]
+                      (fn collect-params [acc {:keys [type params]}]
+                        (cond-> acc
+                          (and (not= :call type) (seq params))  ; skip mutations
+                          (merge params)))
+                      {}
+                      children)]
     {:ring/request ring-request
      :query-params query-params
      :conn (db/get-connection)}))
